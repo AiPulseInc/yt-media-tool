@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>yt media tool</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <h1>yt media tool</h1>
+
+    <div id="metadataContainer" class="container">
+        <form id="metadataForm">
+            <input type="text" id="youtubeUrl" placeholder="Wklej link do YouTube..." required>
+            <button type="submit" id="metadataButton">Pobierz metadane</button>
+        </form>
+        <div id="loader" class="loader" style="display: none;"></div>
+        <div id="error" class="error-message" style="display: none;"></div>
+    </div>
+
+    <div id="metadataResult" class="container" style="display: none;">
+        <h2 id="videoTitle"></h2>
+        <p>Autor: <span id="videoAuthor"></span></p>
+        <img id="videoThumbnail" src="" alt="Miniatura filmu" style="max-width: 100%;">
+        <h3>Wybierz format audio:</h3>
+        <form id="downloadForm">
+            <select id="formatList" name="format"></select>
+            <div class="form-group">
+                <input type="checkbox" id="convertToMp3" name="convertToMp3">
+                <label for="convertToMp3">Konwertuj do MP3</label>
+            </div>
+            <button type="submit" id="downloadButton">Pobierz audio</button>
+        </form>
+        <div id="downloadLoader" class="loader" style="display: none;"></div>
+        <div id="downloadStatus" class="status-message" style="display: none;"></div>
+    </div>
+
+    <div id="progressModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p id="progressText"></p>
+            <div id="modalLoader" class="loader"></div>
+        </div>
+    </div>
+
+    <script src="/static/script.js?v=5"></script>
+</body>
+</html>
