@@ -18,7 +18,9 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 async def startup_event():
-    redis = Redis(host="redis", port=6379, db=0)
+    redis_host = os.environ.get("REDIS_HOST", "redis")
+    redis_port = int(os.environ.get("REDIS_PORT", 6379))
+    redis = Redis(host=redis_host, port=redis_port, db=0)
     await FastAPILimiter.init(redis)
 
 app.add_event_handler("startup", startup_event)
