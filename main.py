@@ -6,10 +6,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from utils.ytdlp_helper import get_video_metadata, stream_audio
 
-from redis.asyncio import Redis
-from fastapi_limiter import FastAPILimiter
-from fastapi_limiter.depends import RateLimiter
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -18,19 +14,11 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-async def startup_event():
-    redis_host = os.environ.get("REDIS_HOST", "redis")
-    redis_port = int(os.environ.get("REDIS_PORT", 6379))
-    redis = Redis(host=redis_host, port=redis_port, db=0)
-    await FastAPILimiter.init(redis)
-
-app.add_event_handler("startup", startup_event)
-
 @app.get("/ping")
 def ping():
     return {"status": "ok"}
 
-@app.get("/metadata", dependencies=[Depends(RateLimiter(times=5, seconds=10))])
+@app.get("/metadata")
 def metadata(url: str = Query(..., max_length=2048)):
     logger.info(f"Received metadata request for URL: {url}")
     data = get_video_metadata(url)
@@ -45,7 +33,7 @@ def metadata(url: str = Query(..., max_length=2048)):
         raise HTTPException(status_code=400, detail=data["error"])
     return data
 
-@app.post("/download", dependencies=[Depends(RateLimiter(times=2, seconds=60))])
+@app.post("/download")
 async def download(request: Request):
     data = await request.json()
     url = data.get("url")

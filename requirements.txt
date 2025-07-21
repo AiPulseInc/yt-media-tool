@@ -4,6 +4,4 @@ yt-dlp
 jinja2
 pytest
 httpx
-fastapi-limiter
-redis
 uvicorn
