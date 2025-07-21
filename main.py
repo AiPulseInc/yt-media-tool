@@ -1,4 +1,5 @@
 import logging
+import os
 from fastapi import FastAPI, Request, Query, HTTPException, Depends
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
