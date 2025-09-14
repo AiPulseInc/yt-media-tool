@@ -5,8 +5,31 @@ import logging
 import re
 import tempfile
 import os
+import base64
 
 logger = logging.getLogger(__name__)
+
+_COOKIES_PATH = None
+
+def _ensure_cookies_file():
+    global _COOKIES_PATH
+    if _COOKIES_PATH:
+        return _COOKIES_PATH
+    b64 = os.environ.get("YTDLP_COOKIES_B64")
+    if not b64:
+        return None
+    try:
+        data = base64.b64decode(b64)
+        tmpdir = tempfile.gettempdir()
+        path = os.path.join(tmpdir, "yt_cookies.txt")
+        with open(path, "wb") as f:
+            f.write(data)
+        _COOKIES_PATH = path
+        logger.info(f"yt-dlp cookies written to {path}")
+        return _COOKIES_PATH
+    except Exception as e:
+        logger.error(f"Failed to decode/write cookies: {e}")
+        return None
 
 def is_youtube_url(url):
     youtube_regex = (
@@ -20,12 +43,20 @@ def get_video_metadata(url):
     if not is_youtube_url(url):
         return {"error": "Invalid YouTube URL"}
 
+    cookies = _ensure_cookies_file()
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
         'skip_download': True,
         'format': 'bestaudio/best',
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android']
+            }
+        },
     }
+    if cookies:
+        ydl_opts['cookiefile'] = cookies
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
@@ -55,10 +86,14 @@ async def stream_audio(url, format_id, convert_to_mp3, progress_cb=None):
     yt_dlp_args = [
         'yt-dlp',
         '--no-part',
+        '--extractor-args', 'youtube:player_client=android',
         '--format', format_id,
         '-o', f"{raw_audio_filepath}.%(ext)s",
         url
     ]
+    cookies = _ensure_cookies_file()
+    if cookies:
+        yt_dlp_args[1:1] = ['--cookies', cookies]
     
     logger.info(f"Executing yt-dlp command for raw download: {' '.join(yt_dlp_args)}")
     if progress_cb:
