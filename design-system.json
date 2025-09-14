@@ -1,0 +1,122 @@
+{
+  "name": "321 TOOLBOX Design System",
+  "branding": {
+    "logo": "321 GROW",
+    "tagline": "Nowoczesne narzędzia dla Twojego biznesu",
+    "headerRight": "321 TECH LAB"
+  },
+  "layout": {
+    "container": {
+      "maxWidth": "1200px",
+      "paddingX": "24px",
+      "paddingY": "48px",
+      "marginX": "auto"
+    },
+    "card": {
+      "borderRadius": "16px",
+      "padding": "24px",
+      "maxWidth": "320px",
+      "background": "#ffffff",
+      "boxShadow": "0 8px 32px rgba(0, 0, 0, 0.15)",
+      "marginBottom": "24px",
+      "hoverEffect": true,
+      "colorStripe": {
+        "enabled": true,
+        "height": "4px",
+        "position": "bottom",
+        "colors": ["#FDE300", "#00B65E", "#0038FF"],
+        "gradient": "linear-gradient(to right, #FDE300 33.33%, #00B65E 33.33%, #00B65E 66.66%, #0038FF 66.66%)"
+      }
+    },
+    "header": {
+      "background": "#001437",
+      "color": "#ffffff",
+      "padding": "24px 32px",
+      "display": "flex",
+      "justifyContent": "space-between",
+      "alignItems": "center"
+    },
+    "columns": {
+      "layout": "3 columns",
+      "gap": "24px",
+      "gridTemplate": "repeat(3, 1fr)"
+    }
+  },
+  "colors": {
+    "primary": "#001437",
+    "accent": "#0038FF",
+    "secondaryAccent": "#00B65E",
+    "highlightYellow": "#FDE300",
+    "text": "#0A0A0A",
+    "textLight": "#666666",
+    "background": "#ffffff",
+    "cardStripe": {
+      "yellow": "#FDE300",
+      "green": "#00B65E",
+      "blue": "#0038FF"
+    }
+  },
+  "typography": {
+    "fontFamily": "'Inter', sans-serif",
+    "headings": {
+      "h1": {
+        "fontSize": "48px",
+        "fontWeight": "700",
+        "color": "#001437"
+      },
+      "h2": {
+        "fontSize": "24px",
+        "fontWeight": "600",
+        "color": "#001437"
+      }
+    },
+    "body": {
+      "fontSize": "16px",
+      "color": "#0A0A0A",
+      "lineHeight": "1.5"
+    },
+    "button": {
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "color": "#ffffff",
+      "textTransform": "none"
+    }
+  },
+  "components": {
+    "button": {
+      "padding": "12px 24px",
+      "borderRadius": "24px",
+      "backgroundColor": "#001437",
+      "hoverBackground": "#0038FF",
+      "transition": "all 0.2s ease-in-out"
+    },
+    "card": {
+      "iconSize": "64px",
+      "titleFontSize": "20px",
+      "subtitleFontSize": "14px",
+      "buttonSpacing": "16px",
+      "footerBorder": true,
+      "shadowIntensity": "enhanced"
+    }
+  },
+  "icons": {
+    "style": "minimal, bold stroke",
+    "color": "#001437"
+  },
+  "shadows": {
+    "card": "0 8px 32px rgba(0, 0, 0, 0.15)",
+    "cardHover": "0 12px 48px rgba(0, 0, 0, 0.2)"
+  },
+  "spacing": {
+    "xs": "8px",
+    "sm": "16px",
+    "md": "24px",
+    "lg": "32px",
+    "xl": "48px"
+  },
+  "responsive": {
+    "mobileBreakpoint": "768px",
+    "cardStack": true,
+    "textCenterMobile": true
+  }
+}

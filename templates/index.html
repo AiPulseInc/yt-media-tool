@@ -5,11 +5,21 @@
     <title>yt media tool</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>yt media tool</h1>
+    <header class="app-header">
+        <div class="brand">
+            <div class="logo">321 GROW</div>
+            <div class="tagline">Nowoczesne narzędzia dla Twojego biznesu</div>
+        </div>
+        <div class="header-right">321 TECH LAB</div>
+    </header>
 
-    <div id="metadataContainer" class="container">
+    <div class="page-container">
+    <div id="metadataContainer" class="container card">
         <form id="metadataForm">
             <input type="text" id="youtubeUrl" placeholder="Wklej link do YouTube..." required>
             <button type="submit" id="metadataButton">Pobierz metadane</button>
@@ -18,7 +28,7 @@
         <div id="error" class="error-message" style="display: none;"></div>
     </div>
 
-    <div id="metadataResult" class="container" style="display: none;">
+    <div id="metadataResult" class="container card" style="display: none;">
         <h2 id="videoTitle"></h2>
         <p>Autor: <span id="videoAuthor"></span></p>
         <img id="videoThumbnail" src="" alt="Miniatura filmu" style="max-width: 100%;">
@@ -35,6 +45,8 @@
         <div id="downloadStatus" class="status-message" style="display: none;"></div>
     </div>
 
+    </div>
+
     <div id="progressModal" class="modal" style="display: none;">
         <div class="modal-content">
             <p id="progressText"></p>
@@ -42,6 +54,6 @@
         </div>
     </div>
 
-    <script src="/static/script.js?v=5"></script>
+    <script src="/static/script.js?v=6"></script>
 </body>
 </html>
