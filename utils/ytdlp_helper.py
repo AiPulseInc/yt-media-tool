@@ -10,6 +10,8 @@ import base64
 logger = logging.getLogger(__name__)
 
 _COOKIES_PATH = None
+_USER_AGENT = os.environ.get("YTDLP_USER_AGENT")
+_PROXY = os.environ.get("YTDLP_PROXY")
 
 def _ensure_cookies_file():
     global _COOKIES_PATH
@@ -54,9 +56,15 @@ def get_video_metadata(url):
                 'player_client': ['android']
             }
         },
+        'retries': 10,
+        'fragment_retries': 10,
     }
     if cookies:
         ydl_opts['cookiefile'] = cookies
+    if _USER_AGENT:
+        ydl_opts['http_headers'] = {'User-Agent': _USER_AGENT}
+    if _PROXY:
+        ydl_opts['proxy'] = _PROXY
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
@@ -87,6 +95,8 @@ async def stream_audio(url, format_id, convert_to_mp3, progress_cb=None):
         'yt-dlp',
         '--no-part',
         '--extractor-args', 'youtube:player_client=android',
+        '--retries', '10',
+        '--fragment-retries', '10',
         '--format', format_id,
         '-o', f"{raw_audio_filepath}.%(ext)s",
         url
@@ -94,6 +104,10 @@ async def stream_audio(url, format_id, convert_to_mp3, progress_cb=None):
     cookies = _ensure_cookies_file()
     if cookies:
         yt_dlp_args[1:1] = ['--cookies', cookies]
+    if _USER_AGENT:
+        yt_dlp_args[1:1] = ['--user-agent', _USER_AGENT]
+    if _PROXY:
+        yt_dlp_args[1:1] = ['--proxy', _PROXY]
     
     logger.info(f"Executing yt-dlp command for raw download: {' '.join(yt_dlp_args)}")
     if progress_cb:
