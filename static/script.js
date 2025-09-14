@@ -41,16 +41,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const formatList = document.getElementById('formatList');
             formatList.innerHTML = '';
-            data.formats.filter(f => f.acodec !== 'none' && f.vcodec === 'none').forEach(format => {
-                const option = document.createElement('option');
-                option.value = format.format_id;
-                let label = ` ${format.ext} - ${format.acodec} (${format.abr}kbps)`;
-                if (format.language) {
-                    label += ` - ${format.language}`;
-                }
-                option.textContent = label;
-                formatList.appendChild(option);
-            });
+            const audioFormats = (data.formats || []).filter(f => f && f.vcodec === 'none' && f.acodec && f.acodec !== 'none');
+
+            if (audioFormats.length === 0) {
+                const empty = document.createElement('option');
+                empty.textContent = 'Brak dostępnych formatów audio';
+                empty.disabled = true;
+                empty.selected = true;
+                formatList.appendChild(empty);
+            } else {
+                audioFormats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format.format_id || '';
+                    const parts = [];
+                    if (format.ext) parts.push(format.ext);
+                    if (format.acodec && format.acodec !== 'none') parts.push(format.acodec);
+                    if (typeof format.abr === 'number' || typeof format.abr === 'string') parts.push(`${format.abr}kbps`);
+                    if (format.language) parts.push(format.language);
+                    option.textContent = parts.join(' - ');
+                    formatList.appendChild(option);
+                });
+            }
 
             document.getElementById('metadataResult').style.display = 'block';
             document.getElementById('metadataContainer').style.display = 'none';
@@ -69,10 +80,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // UI updates
             progressModal.style.display = 'block';
-            progressText.textContent = 'Pobieranie i konwersja pliku...';
+            progressText.textContent = 'Inicjowanie pobierania...';
             downloadButton.disabled = true;
 
             try {
+                // Generate a task id to track server-side progress (fallback for older browsers)
+                const taskId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+
+                // Start polling /progress to update the modal while the stream is in-flight
+                let pollTimer = setInterval(async () => {
+                    try {
+                        const r = await fetch(`/progress?task_id=${encodeURIComponent(taskId)}`);
+                        if (!r.ok) return; // ignore until server registers task
+                        const p = await r.json();
+                        const stage = p.stage;
+                        const detail = p.detail || '';
+                        const map = {
+                            initializing: 'Inicjowanie...',
+                            starting_download: 'Start pobierania...',
+                            downloading: 'Pobieranie strumienia audio...',
+                            download_complete: `Pobieranie zakończone ${detail ? '(' + detail + ')' : ''}`,
+                            converting: 'Konwertowanie do MP3...',
+                            streaming: 'Przygotowywanie pliku do pobrania...',
+                            completed: 'Zakończono.'
+                        };
+                        progressText.textContent = map[stage] || `Przetwarzanie... ${detail}`;
+                        if (stage === 'error') {
+                            progressText.textContent = `Błąd: ${detail}`;
+                        }
+                    } catch (_) { /* ignore polling errors */ }
+                }, 1000);
+
                 const response = await fetch('/download', {
                     method: 'POST',
                     headers: {
@@ -81,9 +119,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ 
                         url: currentUrl, 
                         format_id: selectedFormatValue,
-                        convert_to_mp3: convertToMp3
+                        convert_to_mp3: convertToMp3,
+                        task_id: taskId
                     })
                 });
+
+                // Stop polling when the response completes
+                clearInterval(pollTimer);
 
                 if (response.ok) {
                     downloadStatus.textContent = 'Pobieranie zakończone. Przygotowywanie pliku...';
@@ -99,7 +141,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     progressText.textContent = 'Plik gotowy!';
                     setTimeout(() => { progressModal.style.display = 'none'; }, 2000);
                 } else {
-                    progressText.textContent = 'Błąd podczas pobierania pliku.';
+                    try {
+                        const err = await response.json();
+                        progressText.textContent = `Błąd podczas pobierania: ${err.detail || response.statusText}`;
+                    } catch (e) {
+                        progressText.textContent = `Błąd podczas pobierania pliku.`;
+                    }
                     setTimeout(() => { progressModal.style.display = 'none'; }, 2000);
                 }
             } catch (error) {
